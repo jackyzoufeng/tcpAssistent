@@ -124,12 +124,17 @@ namespace tcpAssistent
         private void Close_Click(object sender, EventArgs e)
         {
             TreeNode CurrentNode = treeView1.SelectedNode;
-            if (CurrentNode.Tag.GetType() == typeof(TcpListenerManager))
+            CloseNode(CurrentNode);
+        }
+
+        private void CloseNode(TreeNode node)
+        {
+            if (node.Tag.GetType() == typeof(TcpListenerManager))
             {
-                TcpListenerManager tlm = (TcpListenerManager)CurrentNode.Tag;
+                TcpListenerManager tlm = (TcpListenerManager)node.Tag;
                 tlm.stop();
 
-                foreach (TreeNode item in CurrentNode.Nodes)
+                foreach (TreeNode item in node.Nodes)
                 {
                     if (item.Tag.GetType() == typeof(TcpSClientManager))
                     {
@@ -144,12 +149,12 @@ namespace tcpAssistent
                         }
                     }
                 }
-                CurrentNode.Parent.Nodes.Remove(CurrentNode);
+                node.Parent.Nodes.Remove(node);
                 //treeNodeTcpServer.Nodes.Remove(CurrentNode);
             }
-            else if (CurrentNode.Tag.GetType() == typeof(TcpSClientManager))
+            else if (node.Tag.GetType() == typeof(TcpSClientManager))
             {
-                TcpSClientManager tscm = (TcpSClientManager)CurrentNode.Tag;
+                TcpSClientManager tscm = (TcpSClientManager)node.Tag;
                 tscm.stop();
                 foreach (TabPage page in tabControl1.TabPages)
                 {
@@ -158,7 +163,7 @@ namespace tcpAssistent
                         tabControl1.TabPages.Remove(page);
                     }
                 }
-                CurrentNode.Parent.Nodes.Remove(CurrentNode);
+                node.Parent.Nodes.Remove(node);
             }
         }
 
@@ -191,6 +196,22 @@ namespace tcpAssistent
                         tabControl1.SelectTab(client_page);
                     }
                 }
+            }
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            TreeNode[] nodes1 = new TreeNode[treeNodeTcpServer.Nodes.Count];
+            treeNodeTcpServer.Nodes.CopyTo(nodes1, 0);
+            TreeNode[] nodes2 = new TreeNode[treeNodeTcpClient.Nodes.Count];
+            treeNodeTcpClient.Nodes.CopyTo(nodes2, 0);
+            foreach (TreeNode item in nodes1)
+            {
+                CloseNode(item);
+            }
+            foreach (TreeNode item in nodes2)
+            {
+                CloseNode(item);
             }
         }
     }
